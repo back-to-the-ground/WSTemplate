@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:context="http://www.springframework.org/schema/context"
+xmlns:tx="http://www.springframework.org/schema/tx"
+xmlns:aop="http://www.springframework.org/schema/aop"
+xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+">
+<context:component-scan base-package="com.projecthash" />
+<!-- Hibernate session factory -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+	
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+	
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+	
+		<property name="mappingResources">
+			<list>
+				<value>hibernate/User.hbm.xml</value>
+			</list>
+		</property>
+	
+	</bean>
+	
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/projecthash" />
+		<property name="username" value="root" />
+		<property name="password" value="123456" />
+	</bean>
+	
+<!-- 	<bean id="transactionManager"  
+        class="org.springframework.orm.hibernate4.HibernateTransactionManager">  
+        <property name="sessionFactory">  
+            <ref bean="sessionFactory" />  
+        </property>  
+    </bean>
+    
+   <tx:advice id="txAdvice" transaction-manager="transactionManager">  
+        <tx:attributes>  
+            <tx:method name="*" propagation="REQUIRED" />  
+        </tx:attributes>  
+    </tx:advice>  
+  
+    <aop:config>  
+        <aop:pointcut id="tx" expression="execution(* com.projecthash.webservice.*.*(..))" />  
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="tx" />  
+    </aop:config>  -->
+<!-- 	<bean id="transactionInterceptor"
+		class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean> -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+<!-- 	<bean id="daoProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target" ref="testService" />
+		<property name="interceptorNames">
+			<list>
+				<value>transactionInterceptor</value>
+			</list>
+		</property>
+	</bean> -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    
+    <aop:aspectj-autoproxy>
+    	<aop:include name = "loggerAspect"/>
+    </aop:aspectj-autoproxy>
+<!--     <bean id="user" class="com.projecthash.data.User">
+		<property name="username" value="test"/>
+		<property name="password" value="test"/>
+	</bean> -->
+<!--     <bean id="com.projecthash.dao.AbstractBaseSession" class="com.projecthash.dao.AbstractBaseSession" abstract="true">
+    	<property name="sessionFactory">
+    		<ref bean="sessionFactory" />
+    	</property>
+    </bean>
+    
+
+	<bean id="testService" class="com.projecthash.webservice.TestService" parent="com.projecthash.dao.AbstractBaseSession">
+		<property name="user" ref="user"/>
+	</bean> -->
+</beans>
